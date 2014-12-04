@@ -3,8 +3,6 @@
 # Modeling rainfall extremes of tuscany 
 
 # INPUT:
-# WrkgDir: Root directoryectory (root directory)
-# WrkgDir/'predictors': contains GeoTiff static and meteorological predictors (the latter begin with 'r_')
 #
 # OUTPUT:
 # Creates...
@@ -26,7 +24,7 @@
 
 
 ##########################################################################################################
-# Load library
+# Load libraries
 
 if (!require(devtools)) {install.packages("devtools"); library(devtools)}
 if (!require(extRemes)) {install.packages("extRemes"); library(extRemes)}
@@ -107,13 +105,13 @@ if (list_perc_missing[[i]] < tresh_missing) {
                                             list_fit_gpd[[i]] <- fevd(rain_mm, temp, threshold=tresh_pio, type="GP",time.units = "days", period.basis = "year", units="mm", verbose=TRUE)
                                             
 					    png(paste0("images/",metadati_stazioni$nomelista[i],"_gpd.png"), width = 800, height = 600)
-					    plot(list_fit_gpd[[i]])
+					    plot(list_fit_gpd[[i]],main=paste(metadati_stazioni$nomelista[i],"-","Analisi estremi PP"))
 					    dev.off()
                                             #....OPPURE fitto una PP
 
                                             list_fit_pp[[i]] <- fevd(rain_mm, temp, threshold=tresh_pio,time.units = "days", period.basis = "year", type="PP", units="mm", verbose=TRUE)
                                             png(paste0("images/",metadati_stazioni$nomelista,"_pp.png"), width = 800, height = 600)
-					    plot(list_fit_gpd[[i]])
+					    plot(list_fit_gpd[[i]],main=paste(metadati_stazioni$nomelista[i],"-","Analisi estremi GPD")
 					    dev.off()
                                             #trovo i tempi di ritorno e i return levels
 
