@@ -43,7 +43,7 @@ if (!require(reshape)) {install.packages("reshape"); library(reshape)}
 ##########################################################################################################
 # Setup working dir if necessary
 
-setwd("D:/lav_perna_ex")
+setwd("")
 
 mainDir <- getwd()
 subDir <- "images"
@@ -93,7 +93,7 @@ list_perc_missing[[i]]=(length(which(is.na(rain_data[[i]]$rain_mm)))/length(rain
 
 if (list_perc_missing[[i]] < tresh_missing) {
                                            
-                                            print(paste0("Stazione N°...."))
+                                            print(paste0("Stazione NÂ°...."))
                                             #    fitto una GP 
 											temp=na.omit(rain_data[[i]])
 											
