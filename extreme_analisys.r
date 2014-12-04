@@ -57,11 +57,13 @@ if (!file.exists(subDir)){
 
 
 rain_data=readRDS("serie_toscana_1960_1990.rds")
+
 nomi_stazioni=sapply(rain_data,function(x) x$stazione[1])
+
 metadati_stazioni=read.csv("dati_stazioni_pio_file.csv")
 
 ##########################################################################################################
-# Variable in data.frames 
+# Variable in data.frames di lista caricati come rds file dopo averli riuniti
 
 # anno,mese,giorno,rain_mm,stazione,data
 
@@ -93,23 +95,26 @@ list_perc_missing[[i]]=(length(which(is.na(rain_data[[i]]$rain_mm)))/length(rain
 
 if (list_perc_missing[[i]] < tresh_missing) {
                                            
-                                            print(paste0("Stazione N°...."))
-                                            #    fitto una GP 
-											temp=na.omit(rain_data[[i]])
-											
-											#valuto l'intervallo di confidenza (sulla pioggia di2,5, 10,30,50,75,100,150,200 anni) ,rperiods= c(2,5, 10,30,50,75,100,150,200)
+                                            
+                                            #   Ometto dati mancanti 
+					   
+                                            temp=na.omit(rain_data[[i]])
+                                            
+					    #    fitto una GP 
+					   						
+					    #valuto l'intervallo di confidenza (sulla pioggia di2,5, 10,30,50,75,100,150,200 anni) ,rperiods= c(2,5, 10,30,50,75,100,150,200)
 
                                             list_fit_gpd[[i]] <- fevd(rain_mm, temp, threshold=tresh_pio, type="GP",time.units = "days", period.basis = "year", units="mm", verbose=TRUE)
                                             
-											png(paste0("images/",metadati_stazioni$nomelista[i],"_gpd.png"), width = 800, height = 600)
-											plot(list_fit_gpd[[i]])
-											dev.off()
+					    png(paste0("images/",metadati_stazioni$nomelista[i],"_gpd.png"), width = 800, height = 600)
+					    plot(list_fit_gpd[[i]])
+					    dev.off()
                                             #....OPPURE fitto una PP
 
                                             list_fit_pp[[i]] <- fevd(rain_mm, temp, threshold=tresh_pio,time.units = "days", period.basis = "year", type="PP", units="mm", verbose=TRUE)
                                             png(paste0("images/",metadati_stazioni$nomelista,"_pp.png"), width = 800, height = 600)
-											plot(list_fit_gpd[[i]])
-											dev.off()
+					    plot(list_fit_gpd[[i]])
+					    dev.off()
                                             #trovo i tempi di ritorno e i return levels
 
                                             list_return_level_ci_PP[[i]] <- ci.fevd(list_fit_gpd[[i]],return.period= c(2,5, 10,30,50,75,100,150,200))
@@ -117,22 +122,27 @@ if (list_perc_missing[[i]] < tresh_missing) {
                                             list_return_level_ci_gpd[[i]] <- ci.fevd(list_fit_pp[[i]],return.period= c(2,5, 10,30,50,75,100,150,200))
                                             
 											
-											resume_data=as.data.frame(c(metadati_stazioni[i,],
-											                            list_fit_gpd[[i]]$results$par,
-																		list_fit_pp[[i]]$results$par,
-																		perc_manc=unlist(list_perc_missing[[i]]),
-																		as.numeric(t(list_return_level_ci_PP[[i]][5,])),
-																		as.numeric(t(list_return_level_ci_gpd[[i]][5,]))))
+					    resume_data=as.data.frame(c(metadati_stazioni[i,],
+					                               list_fit_gpd[[i]]$results$par,
+								       list_fit_pp[[i]]$results$par,
+								       perc_manc=unlist(list_perc_missing[[i]]),
+								       as.numeric(t(list_return_level_ci_PP[[i]][5,])),
+								       as.numeric(t(list_return_level_ci_gpd[[i]][5,]))))
 																		
-										    names(resume_data)=c("ID","lon","lat","quota","nome","nomelista","scale_gpd","shape_gpd","location_pp","scale_pp","shape_pp","perc_manc","ci_inf_100_pp","ci_e_100_pp","ci_max_100_pp","ci_inf_100_gpd","ci_e_100_gpd","ci_max_100_gpd")
+					   names(resume_data)=c("ID","lon","lat","quota",
+					                        "nome","nomelista",
+					                        "scale_gpd","shape_gpd",
+					                        "location_pp","scale_pp","shape_pp",
+					                        "perc_manc",
+					                        "ci_inf_100_pp","ci_e_100_pp","ci_max_100_pp",
+					                        "ci_inf_100_gpd","ci_e_100_gpd","ci_max_100_gpd")
 											
 											
-											list_metadata[[i]]=resume_data
+					      list_metadata[[i]]=resume_data
 											
-											print(paste0(i,"....fatta!"))
-                                           
+										
 											}
-}http://www.google.it/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&ved=0CCwQFjAB&url=http%3A%2F%2Fr.789695.n4.nabble.com%2FMerging-list-of-dataframes-with-reshape-merge-all-td4655214.html&ei=-aaAVKdtz-honquAsAk&usg=AFQjCNEoX69I52Lg4Xm2qqgw_-1OHF-Yog&sig2=VPrv4vNUkrb-SnsrH8GHZg&bvm=bv.80642063,d.d2s
+                                             }
 
 saveRDS(list_perc_missing,"list_perc_missing.rds")
 saveRDS(list_fit_gpd,"list_fit_gpareto.rds")
@@ -144,7 +154,7 @@ saveRDS(list_return_level_ci_gpd,"list_return_level_ci_gpd.rds")
 
 saveRDS(list_metadata,"list_metadata.rds")
 ###################################################################################
-
+# unisco i dati
 final_data=reshape::merge_all(list_metadata)
 
 
